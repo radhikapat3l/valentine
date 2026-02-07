@@ -2,96 +2,543 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Valentine?</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Will you be my Valentine?</title>
+
+  <!-- Pixel font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <style>
+    :root{
+      --glass: rgba(0,0,0,.35);
+      --stroke: rgba(255,255,255,.18);
+      --pink: #ff3b8d;
+      --hot: #ff2d55;
+      --sky: #66d9ff;
+      --mint: #7CFFB2;
+      --sun: #ffd166;
+      --lav: #b388ff;
+      --white: #fff;
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; margin:0; }
+
     body{
-      font-family: system-ui, Arial;
-      height: 100vh;
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      overflow:hidden;
+      background:#090a0f;
+      color: var(--white);
+    }
+
+    /* Full-screen animated pixel mosaic */
+    .mosaic{
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 45, 85, .35), transparent 45%),
+        radial-gradient(circle at 80% 10%, rgba(102, 217, 255, .32), transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(124, 255, 178, .30), transparent 45%),
+        radial-gradient(circle at 20% 80%, rgba(179, 136, 255, .28), transparent 50%),
+        linear-gradient(135deg, #0a0b14 0%, #090a0f 50%, #070810 100%);
+      filter: saturate(1.25);
+      z-index: -3;
+    }
+    .mosaic::before{
+      content:"";
+      position:absolute;
+      inset:-50px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px),
+        linear-gradient(0deg,  rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 18px 18px;
+      opacity:.25;
+      transform: translate3d(0,0,0);
+      animation: drift 10s linear infinite;
+      z-index:-2;
+      mix-blend-mode: overlay;
+    }
+    .mosaic::after{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background:
+        conic-gradient(from 140deg at 50% 50%,
+          rgba(255,59,141,.18),
+          rgba(102,217,255,.18),
+          rgba(124,255,178,.18),
+          rgba(255,209,102,.18),
+          rgba(179,136,255,.18),
+          rgba(255,59,141,.18));
+      filter: blur(30px);
+      opacity:.55;
+      animation: pulse 4.5s ease-in-out infinite;
+      z-index:-1;
+    }
+
+    @keyframes drift{
+      0%{ transform: translate(-10px,-10px); }
+      50%{ transform: translate(10px,10px); }
+      100%{ transform: translate(-10px,-10px); }
+    }
+    @keyframes pulse{
+      0%,100%{ transform: scale(1); opacity:.45; }
+      50%{ transform: scale(1.08); opacity:.65; }
+    }
+
+    /* Floating pixel hearts */
+    .hearts{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index: -1;
+      opacity: .9;
+    }
+    .heart{
+      position:absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--pink);
+      transform: rotate(45deg);
+      image-rendering: pixelated;
+      animation: floatUp linear infinite;
+      filter: drop-shadow(0 0 10px rgba(255,59,141,.35));
+    }
+    .heart:before,.heart:after{
+      content:"";
+      position:absolute;
+      width:14px;height:14px;
+      background:inherit;
+      border-radius: 50%;
+    }
+    .heart:before{ left:-7px; top:0; }
+    .heart:after{ left:0; top:-7px; }
+
+    @keyframes floatUp{
+      from{ transform: translateY(110vh) rotate(45deg); opacity:0; }
+      10%{ opacity:1; }
+      to{ transform: translateY(-20vh) rotate(45deg); opacity:0; }
+    }
+
+    /* Center game panel */
+    .wrap{
+      height:100%;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: linear-gradient(135deg, #ffd1dc, #fff);
-      margin:0;
+      padding: 18px;
     }
-    .card{
-      background:white;
-      padding:30px;
-      border-radius:20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      text-align:center;
-      width:min(420px, 92vw);
-    }
-    h1{ margin: 0 0 10px; }
-    p{ margin: 0 0 20px; }
-    .btns{
-      display:flex;
-      gap:12px;
-      justify-content:center;
+    .panel{
+      width: min(760px, 96vw);
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      padding: 26px 18px 18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
       position: relative;
-      height: 60px;
+      overflow: hidden;
     }
+
+    /* pixel “HUD” */
+    .hud{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      font-size: 10px;
+      opacity:.95;
+      margin-bottom: 14px;
+    }
+    .badge{
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--sun);
+      box-shadow: 0 0 0 3px rgba(255,209,102,.15);
+    }
+
+    .title{
+      text-align:center;
+      font-size: 18px;
+      line-height: 1.5;
+      margin: 10px 0 8px;
+      text-shadow: 0 2px 0 rgba(0,0,0,.35);
+    }
+    .subtitle{
+      text-align:center;
+      font-size: 10px;
+      opacity:.9;
+      line-height:1.6;
+      margin: 0 0 18px;
+    }
+
+    .stage{
+      position: relative;
+      height: 160px;
+      margin: 18px auto 8px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.22);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 6px, transparent 6px 12px);
+      overflow:hidden;
+    }
+
+    /* Pixel “ground” */
+    .ground{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 46px;
+      background:
+        linear-gradient(0deg, rgba(255,209,102,.22), rgba(255,209,102,.06)),
+        repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 12px, transparent 12px 24px);
+      border-top: 1px solid rgba(255,255,255,.18);
+    }
+
+    .bubble{
+      position:absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-60%);
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.18);
+      text-align:center;
+      width: min(520px, 88%);
+      font-size: 10px;
+      line-height: 1.7;
+    }
+
+    .btnRow{
+      display:flex;
+      justify-content:center;
+      gap: 12px;
+      margin-top: 16px;
+      position: relative;
+      height: 64px;
+    }
+
     button{
-      border:0;
-      padding:12px 18px;
-      border-radius:12px;
+      font-family: inherit;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 18px;
       cursor:pointer;
-      font-size:16px;
-      transition: transform .15s ease;
+      font-size: 12px;
+      letter-spacing: .2px;
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
-    #yes{ background:#ff3b6f; color:white; }
-    #no{ background:#eee; }
-    #yes:hover{ transform: scale(1.05); }
+
+    #yes{
+      background: linear-gradient(135deg, var(--hot), var(--pink));
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(255,45,85,.25);
+      border: 1px solid rgba(255,255,255,.18);
+    }
+    #yes:hover{ transform: translateY(-2px) scale(1.03); filter: brightness(1.05); }
+
+    #no{
+      background: rgba(255,255,255,.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.20);
+      position: relative;
+    }
+
+    .footer{
+      text-align:center;
+      font-size: 9px;
+      opacity:.85;
+      margin-top: 14px;
+      line-height:1.6;
+    }
+
+    /* Celebration overlay */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+      padding: 18px;
+    }
+    .modal{
+      width: min(760px, 96vw);
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 22px;
+      padding: 22px 18px;
+      text-align:center;
+      box-shadow: 0 18px 60px rgba(0,0,0,.6);
+      position: relative;
+      overflow:hidden;
+    }
+    .modal h2{
+      margin: 6px 0 10px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .modal p{
+      margin: 0 0 16px;
+      font-size: 10px;
+      line-height:1.8;
+      opacity:.95;
+    }
+    .smallBtn{
+      background: rgba(255,255,255,.14);
+      color:#fff;
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 10px;
+    }
+
+    /* Confetti pixels */
+    canvas#confetti{
+      position: fixed;
+      inset: 0;
+      z-index: 9;
+      pointer-events:none;
+      display:none;
+    }
   </style>
 </head>
-<body>
-  <div class="card">
-    <h1>Will you be my Valentine? 💘</h1>
-    <p id="msg">Choose wisely… 😄</p>
 
-    <div class="btns" id="area">
-      <button id="yes">Yes 💖</button>
-      <button id="no">No 🙃</button>
+<body>
+  <div class="mosaic"></div>
+  <div class="hearts" id="hearts"></div>
+
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="hud">
+        <div class="badge"><span class="dot"></span> LEVEL: LOVE</div>
+        <div class="badge">HP: 💖💖💖💖💖</div>
+        <div class="badge">COINS: ♡∞</div>
+      </div>
+
+      <div class="title">Will you be my Valentine?</div>
+      <div class="subtitle">A little retro love quest — choose your answer 👾💘</div>
+
+      <div class="stage" id="stage">
+        <div class="bubble" id="msg">
+          Press <b>YES</b> to accept the cutest mission ever.<br/>
+          Press <b>NO</b> if you dare… (spoiler: it’s hard 😄)
+        </div>
+        <div class="ground"></div>
+      </div>
+
+      <div class="btnRow" id="btnArea">
+        <button id="yes">YES 💘</button>
+        <button id="no">NO 🙃</button>
+      </div>
+
+      <div class="footer">
+        Tip: On mobile, try tapping NO… if you can 😌<br/>
+        (Made with love + pixels)
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2>🎉 QUEST COMPLETE! 🎉</h2>
+      <p id="finalText">
+        You just unlocked the <b>Best Valentine Ever</b> achievement 💞<br/>
+        Now tell me your favorite snack and I’ll plan the cutest date 🥰
+      </p>
+      <button class="smallBtn" id="close">Aww okay 💖</button>
     </div>
   </div>
 
   <script>
+    // ===== Floating hearts background =====
+    const heartsWrap = document.getElementById("hearts");
+    function spawnHearts(){
+      const count = 18;
+      for(let i=0;i<count;i++){
+        const h = document.createElement("div");
+        h.className = "heart";
+        const left = Math.random()*100;
+        const dur = 6 + Math.random()*7;
+        const delay = Math.random()*4;
+        const size = 10 + Math.random()*14;
+
+        h.style.left = left + "vw";
+        h.style.animationDuration = dur + "s";
+        h.style.animationDelay = delay + "s";
+        h.style.width = size + "px";
+        h.style.height = size + "px";
+        h.style.opacity = (0.35 + Math.random()*0.6).toFixed(2);
+
+        // random color tint
+        const colors = ["#ff3b8d","#ff2d55","#ffd166","#66d9ff","#b388ff","#7CFFB2"];
+        h.style.background = colors[Math.floor(Math.random()*colors.length)];
+        heartsWrap.appendChild(h);
+      }
+    }
+    spawnHearts();
+
+    // ===== No button dodge + escalating messages =====
     const noBtn = document.getElementById("no");
     const yesBtn = document.getElementById("yes");
     const msg = document.getElementById("msg");
-    const area = document.getElementById("area");
+    const btnArea = document.getElementById("btnArea");
 
-    const noMessages = [
+    const noLines = [
       "Are you sure? 🥺",
-      "Really sure?? 😭",
-      "Think again… 💔",
-      "Last chance… 😳",
-      "Okay you’re making this hard 😤"
+      "Wait… think again 😭",
+      "That’s illegal in Love Land 🚫💘",
+      "No button is malfunctioning… 😳",
+      "Plot twist: you meant YES 😌",
+      "Okay okay… you’re tough 😤",
+      "Final boss mode activated 👾",
+      "Error 404: NO not found 💖"
     ];
-    let count = 0;
+    let tries = 0;
 
-    noBtn.addEventListener("mouseenter", () => {
-      // Move the No button to a random spot inside the button area
-      const areaRect = area.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
+    function moveNo(){
+      const areaRect = btnArea.getBoundingClientRect();
+      const btnRect  = noBtn.getBoundingClientRect();
 
       const maxX = areaRect.width - btnRect.width;
       const maxY = areaRect.height - btnRect.height;
 
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+      const x = Math.max(0, Math.random() * maxX);
+      const y = Math.max(0, Math.random() * maxY);
 
       noBtn.style.position = "absolute";
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
 
-      msg.textContent = noMessages[count % noMessages.length];
-      count++;
+      msg.innerHTML = noLines[tries % noLines.length];
+      tries++;
+
+      // Make YES slightly stronger each time 😄
+      const scale = Math.min(1.22, 1 + tries * 0.03);
+      yesBtn.style.transform = `translateY(-2px) scale(${scale})`;
+    }
+
+    // Desktop: hover triggers dodge
+    noBtn.addEventListener("mouseenter", moveNo);
+
+    // Mobile: tap triggers dodge
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      moveNo();
     });
 
+    // ===== Confetti + celebration overlay =====
+    const overlay = document.getElementById("overlay");
+    const closeBtn = document.getElementById("close");
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    function resize(){
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    let pieces = [];
+    let animId = null;
+
+    function startConfetti(){
+      canvas.style.display = "block";
+      pieces = [];
+      const colors = ["#ff3b8d","#ff2d55","#ffd166","#66d9ff","#b388ff","#7CFFB2","#ffffff"];
+      const n = 220;
+
+      for(let i=0;i<n;i++){
+        pieces.push({
+          x: Math.random()*window.innerWidth,
+          y: -20 - Math.random()*window.innerHeight,
+          s: 4 + Math.random()*6,
+          vy: 2 + Math.random()*5,
+          vx: -2 + Math.random()*4,
+          r: Math.random()*Math.PI,
+          vr: (-0.15 + Math.random()*0.3),
+          c: colors[(Math.random()*colors.length)|0],
+          a: 0.8 + Math.random()*0.2
+        });
+      }
+
+      const start = performance.now();
+      function frame(t){
+        const elapsed = t - start;
+        ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+        for(const p of pieces){
+          p.x += p.vx;
+          p.y += p.vy;
+          p.r += p.vr;
+          p.vy += 0.02; // gravity
+          if(p.y > window.innerHeight + 30) p.y = -30;
+
+          ctx.save();
+          ctx.globalAlpha = p.a;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.r);
+          ctx.fillStyle = p.c;
+
+          // pixel-square confetti
+          ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s);
+
+          // sometimes draw a tiny heart pixel pattern
+          if(Math.random() < 0.02){
+            ctx.fillRect(-p.s, -p.s, p.s/2, p.s/2);
+            ctx.fillRect(p.s/2, -p.s, p.s/2, p.s/2);
+          }
+          ctx.restore();
+        }
+
+        if(elapsed < 5000){
+          animId = requestAnimationFrame(frame);
+        } else {
+          stopConfetti();
+        }
+      }
+      animId = requestAnimationFrame(frame);
+    }
+
+    function stopConfetti(){
+      if(animId) cancelAnimationFrame(animId);
+      animId = null;
+      canvas.style.display = "none";
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    }
+
     yesBtn.addEventListener("click", () => {
-      msg.textContent = "YAY!! 💞 See you on our date 😘";
-      document.querySelector(".btns").innerHTML = `<button id="yay" style="background:#ff3b6f;color:#fff;">🎉 Locked In 🎉</button>`;
+      msg.innerHTML = "YAY!! 💞 Loading: date planning mode…";
+      startConfetti();
+      overlay.style.display = "flex";
+    });
+
+    closeBtn.addEventListener("click", () => {
+      overlay.style.display = "none";
+      stopConfetti();
+      msg.innerHTML = "Achievement unlocked: <b>VALENTINE CONFIRMED</b> 💖";
+      btnArea.innerHTML = `<button id="locked" style="background:linear-gradient(135deg,#ff2d55,#ff3b8d);color:#fff;border:1px solid rgba(255,255,255,.18);box-shadow:0 14px 30px rgba(255,45,85,.25);">💘 LOCKED IN 💘</button>`;
     });
   </script>
 </body>
