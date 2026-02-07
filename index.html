@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine?</title>
+  <style>
+    body{
+      font-family: system-ui, Arial;
+      height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg, #ffd1dc, #fff);
+      margin:0;
+    }
+    .card{
+      background:white;
+      padding:30px;
+      border-radius:20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      text-align:center;
+      width:min(420px, 92vw);
+    }
+    h1{ margin: 0 0 10px; }
+    p{ margin: 0 0 20px; }
+    .btns{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      position: relative;
+      height: 60px;
+    }
+    button{
+      border:0;
+      padding:12px 18px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:16px;
+      transition: transform .15s ease;
+    }
+    #yes{ background:#ff3b6f; color:white; }
+    #no{ background:#eee; }
+    #yes:hover{ transform: scale(1.05); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Will you be my Valentine? 💘</h1>
+    <p id="msg">Choose wisely… 😄</p>
+
+    <div class="btns" id="area">
+      <button id="yes">Yes 💖</button>
+      <button id="no">No 🙃</button>
+    </div>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById("no");
+    const yesBtn = document.getElementById("yes");
+    const msg = document.getElementById("msg");
+    const area = document.getElementById("area");
+
+    const noMessages = [
+      "Are you sure? 🥺",
+      "Really sure?? 😭",
+      "Think again… 💔",
+      "Last chance… 😳",
+      "Okay you’re making this hard 😤"
+    ];
+    let count = 0;
+
+    noBtn.addEventListener("mouseenter", () => {
+      // Move the No button to a random spot inside the button area
+      const areaRect = area.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const maxX = areaRect.width - btnRect.width;
+      const maxY = areaRect.height - btnRect.height;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      noBtn.style.position = "absolute";
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+
+      msg.textContent = noMessages[count % noMessages.length];
+      count++;
+    });
+
+    yesBtn.addEventListener("click", () => {
+      msg.textContent = "YAY!! 💞 See you on our date 😘";
+      document.querySelector(".btns").innerHTML = `<button id="yay" style="background:#ff3b6f;color:#fff;">🎉 Locked In 🎉</button>`;
+    });
+  </script>
+</body>
+</html>
